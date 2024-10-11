@@ -1,12 +1,11 @@
 import React from 'react';
 import './App.css';
-import Button from '@mui/material/Button';
+import { Login } from './pages/Login';
 
 function App() {
   return (
-    <div className="App">
-      <Button variant="text">Text</Button>
-      <Button variant="contained">Contained</Button>
+    <div>
+      <Login />
     </div>
   );
 }

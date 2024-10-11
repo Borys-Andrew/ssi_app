@@ -1,12 +1,40 @@
 import React from 'react';
 import './App.css';
-import { Login } from './pages/Login';
+import {
+  AddMoviePage,
+  EditMoviePage,
+  ListMoviesPage,
+  LoginPage,
+  NotFoundPage,
+} from './pages';
+import { Route, Routes } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <div>
-      <Login />
-    </div>
+    <Routes>
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
+      <Route
+        path="/movies"
+        element={<ProtectedRoute element={<ListMoviesPage />} />}
+      />
+      <Route
+        path="/add-movie"
+        element={<ProtectedRoute element={<AddMoviePage />} />}
+      />
+      <Route
+        path="/edit-movie/:id"
+        element={<ProtectedRoute element={<EditMoviePage />} />}
+      />
+
+      <Route
+        path="*"
+        element=<NotFoundPage />
+      />
+    </Routes>
   );
 }
 

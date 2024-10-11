@@ -18,7 +18,7 @@ type FormData = {
   password: string;
 };
 
-export const Login = () => {
+const LoginPage = () => {
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -147,3 +147,5 @@ export const Login = () => {
     </Box>
   );
 };
+
+export default LoginPage;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Button,
@@ -10,11 +11,10 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { VisibilityOff, Visibility } from '@mui/icons-material';
-import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
-import { User } from '../types';
-import { useNavigate } from 'react-router-dom';
+import { VisibilityOff, Visibility, AlternateEmail } from '@mui/icons-material';
+
 import { useAuthContext } from '../context/AuthContext';
+import { User } from '../types';
 
 type FormData = {
   email: string;
@@ -140,7 +140,7 @@ const LoginPage = () => {
                 onChange={handleInputChange}
                 endAdornment={
                   <InputAdornment position="end">
-                    <AlternateEmailIcon sx={{ mr: 1 }} />
+                    <AlternateEmail sx={{ mr: 1 }} />
                   </InputAdornment>
                 }
                 label="Email"

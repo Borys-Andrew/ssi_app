@@ -1,10 +1,11 @@
 import React from 'react';
+import MoviesList from '../components/MoviesList';
 
 const HomePage = () => {
   return (
-    <>
-      <div>HomePage</div>
-    </>
+    <div style={{ padding: '24px 0' }}>
+      <MoviesList />
+    </div>
   );
 };
 

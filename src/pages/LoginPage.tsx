@@ -12,6 +12,9 @@ import {
 } from '@mui/material';
 import { VisibilityOff, Visibility } from '@mui/icons-material';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
+import { User } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../context/AuthContext';
 
 type FormData = {
   email: string;
@@ -20,10 +23,14 @@ type FormData = {
 
 const LoginPage = () => {
   const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
+    email: 'user@mail.com',
+    password: '1324',
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [notify, setNotify] = useState<string | null>(null);
+  console.log('🚀 ~ LoginPage ~ notify:', notify);
+  const navigate = useNavigate();
+  const { login } = useAuthContext();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,8 +42,43 @@ const LoginPage = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Perform form submission logic here
-    console.log(formData);
+    const { email, password } = formData;
+
+    const storedData = localStorage.getItem('db_app');
+    const db = JSON.parse(storedData as string);
+
+    const user = db.users.find((user: User) => {
+      return user.email === email;
+    });
+    console.log('🚀 ~ handleSubmit ~ user:', user);
+    if (!user) {
+      db.users.push({
+        id: Date.now().toString(),
+        email,
+        password,
+      });
+      localStorage.setItem('db_app', JSON.stringify(db));
+
+      setNotify('User created successfully');
+      setFormData({
+        email: '',
+        password: '',
+      });
+
+      login();
+
+      navigate('/');
+      return;
+    }
+
+    if (user.password !== password) {
+      setNotify('Wrong password');
+
+      return;
+    }
+
+    login();
+    navigate('/');
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -73,7 +115,6 @@ const LoginPage = () => {
           borderRadius={2}
           border={1}
           sx={{
-            // boxShadow: '5px 5px 5px #d1cfd1',
             borderColor: 'grey.500',
           }}
           padding={5}

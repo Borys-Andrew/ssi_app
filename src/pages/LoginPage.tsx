@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -10,39 +10,82 @@ import {
   OutlinedInput,
   FormControl,
   InputLabel,
+  FormHelperText,
 } from '@mui/material';
 import { VisibilityOff, Visibility, AlternateEmail } from '@mui/icons-material';
 
-import { useAuthContext } from '../context/AuthContext';
 import { User } from '../types';
+import { AuthContext } from '../context/AuthContext';
 
-type FormData = {
+type FormDataTypes = {
   email: string;
   password: string;
 };
 
-const LoginPage = () => {
-  const [formData, setFormData] = useState<FormData>({
+type ErrorsType = {
+  email?: string;
+  password?: string;
+};
+
+const regEmail =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+const LoginPage: React.FC = () => {
+  const [formData, setFormData] = useState<FormDataTypes>({
     email: 'user@mail.com',
     password: '1324',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [notify, setNotify] = useState<string | null>(null);
-  console.log('🚀 ~ LoginPage ~ notify:', notify);
+  const [errors, setErrors] = useState<ErrorsType>({});
+
   const navigate = useNavigate();
-  const { login } = useAuthContext();
+  const { setUser } = useContext(AuthContext);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
+
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
+  const validate = () => {
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!regEmail.test(formData.email)) {
+      newErrors.email = 'Invalid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 4) {
+      newErrors.password = 'Password must be at least 4 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
+
     const { email, password } = formData;
+    const id = Date.now().toString();
+    const newUser: User = {
+      id,
+      email,
+      password,
+      favorites: [],
+    };
 
     const storedData = localStorage.getItem('db_app');
     const db = JSON.parse(storedData as string);
@@ -50,34 +93,40 @@ const LoginPage = () => {
     const user = db.users.find((user: User) => {
       return user.email === email;
     });
-    console.log('🚀 ~ handleSubmit ~ user:', user);
+
     if (!user) {
-      db.users.push({
-        id: Date.now().toString(),
-        email,
-        password,
-      });
+      db.users.push(newUser);
       localStorage.setItem('db_app', JSON.stringify(db));
 
-      setNotify('User created successfully');
+      setUser({
+        userId: id,
+        isAuth: true,
+      });
+
       setFormData({
         email: '',
         password: '',
       });
 
-      login();
-
       navigate('/');
+
       return;
     }
 
     if (user.password !== password) {
-      setNotify('Wrong password');
+      setErrors((prevState) => ({
+        ...prevState,
+        password: 'Invalid password',
+      }));
 
       return;
     }
 
-    login();
+    setUser({
+      userId: id,
+      isAuth: true,
+    });
+
     navigate('/');
   };
 
@@ -131,11 +180,17 @@ const LoginPage = () => {
               fullWidth
               sx={{ mb: 3 }}
             >
-              <InputLabel htmlFor="email">Email</InputLabel>
+              <InputLabel
+                htmlFor="email"
+                error={!!errors.email}
+              >
+                Email
+              </InputLabel>
               <OutlinedInput
+                error={!!errors.email}
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 value={formData.email}
                 onChange={handleInputChange}
                 endAdornment={
@@ -145,14 +200,28 @@ const LoginPage = () => {
                 }
                 label="Email"
               />
+              {!!errors.email && (
+                <FormHelperText
+                  error
+                  id="component-error-text"
+                >
+                  {errors.email}
+                </FormHelperText>
+              )}
             </FormControl>
 
             <FormControl
               fullWidth
               sx={{ mb: 3 }}
             >
-              <InputLabel htmlFor="password">Password</InputLabel>
+              <InputLabel
+                htmlFor="password"
+                error={!!errors.password}
+              >
+                Password
+              </InputLabel>
               <OutlinedInput
+                error={!!errors.password}
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
@@ -172,6 +241,14 @@ const LoginPage = () => {
                 }
                 label="Password"
               />
+              {!!errors.password && (
+                <FormHelperText
+                  error
+                  id="component-error-text"
+                >
+                  {errors.password}
+                </FormHelperText>
+              )}
             </FormControl>
             <Button
               type="submit"

@@ -1,7 +1,12 @@
 import React from 'react';
+import EditMovieForm from '../components/EditMovieForm';
 
-const EditMoviePage = () => {
-  return <div>EditMoviePage</div>;
+const EditMoviePage: React.FC = () => {
+  return (
+    <div>
+      <EditMovieForm />
+    </div>
+  );
 };
 
 export default EditMoviePage;

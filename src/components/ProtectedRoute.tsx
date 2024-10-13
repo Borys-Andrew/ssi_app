@@ -1,14 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuthContext } from '../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 
 interface ProtectedRouteProps {
   element: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
-  const { isAuth } = useAuthContext();
-  console.log('🚀 ~ isAuth:', isAuth);
+  const { isAuth } = useContext(AuthContext);
 
   if (isAuth) {
     return <>{element}</>;

@@ -10,8 +10,8 @@ import {
 } from '@mui/material';
 import TheatersIcon from '@mui/icons-material/Theaters';
 import { Link, useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import { useAuthContext } from '../context/AuthContext';
+import { useContext, useState } from 'react';
+import { AuthContext } from '../context/AuthContext';
 // import { MenuOpenIcon, Person2Outlined, LogoutIcon } from '@mui/icons-material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -23,11 +23,11 @@ const LINKS = [
   { label: 'Contact', path: '/contacts' },
 ];
 
-const Header = () => {
+const Header: React.FC = () => {
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { logout } = useAuthContext();
+  const { logout } = useContext(AuthContext);
 
   const handleUserMenuClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget);

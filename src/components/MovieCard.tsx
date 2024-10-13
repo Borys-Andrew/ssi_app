@@ -9,12 +9,14 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { Delete, Edit, FavoriteBorder, Favorite } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 type MoviecardProps = {
   id: string;
   title: string;
   poster: string;
   description: string;
+  onDelete: (id: string) => void;
 };
 
 const MovieCard: React.FC<MoviecardProps> = ({
@@ -22,19 +24,33 @@ const MovieCard: React.FC<MoviecardProps> = ({
   title,
   poster,
   description,
+  onDelete,
 }) => {
+  const navigate = useNavigate();
   const isFavorite = false;
 
   const handleToggleFavorite = () => {
     console.log(`toggle favite movie id ${id}`);
-  };
 
-  const handleDelete = () => {
-    console.log(`Delete movie with ${id}`);
+    // const db = localStorage.getItem('db_app');
+    // const parsedDB = JSON.parse(db as string);
+
+    // const user = parsedDB.users.find((user: User) => {
+    //   return user.id === userId;
+    // });
+
+    // user.favorites.includes(id)
+    //   ? (user.favorites = user.favorites.filter(
+    //       (movieId: string) => movieId !== id,
+    //     ))
+    //   : user.favorites.push(id);
+
+    // localStorage.setItem('db_app', JSON.stringify(parsedDB));
   };
 
   const handleEdit = () => {
     console.log(`Edit movie with ${id}`);
+    navigate(`/edit-movie/${id}`, { replace: true });
   };
 
   return (
@@ -50,7 +66,11 @@ const MovieCard: React.FC<MoviecardProps> = ({
           image={poster}
           alt={`Poster ${title}`}
         />
-        <CardContent>
+        <CardContent
+          sx={{
+            paddingBottom: '0',
+          }}
+        >
           <Typography
             gutterBottom
             variant="h6"
@@ -91,7 +111,7 @@ const MovieCard: React.FC<MoviecardProps> = ({
             aria-label="delete"
             size="small"
             title="Delete movie"
-            onClick={handleDelete}
+            onClick={() => onDelete(id)}
           >
             <Delete />
           </IconButton>
@@ -103,6 +123,7 @@ const MovieCard: React.FC<MoviecardProps> = ({
             position: 'absolute',
             top: 8,
             right: 8,
+            backgroundColor: 'rgba(117, 117, 117, 1)',
           }}
           onClick={handleToggleFavorite}
         >

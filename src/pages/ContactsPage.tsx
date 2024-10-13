@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import React from 'react';
 
-const ContactsPage = () => {
+const ContactsPage: React.FC = () => {
   return (
     <div>
       <Typography

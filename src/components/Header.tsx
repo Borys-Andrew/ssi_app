@@ -11,11 +11,10 @@ import {
 import TheatersIcon from '@mui/icons-material/Theaters';
 import { Link, useLocation } from 'react-router-dom';
 import { useContext, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-// import { MenuOpenIcon, Person2Outlined, LogoutIcon } from '@mui/icons-material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import { AuthContext } from '../context/AuthContext';
 
 const LINKS = [
   { label: 'Home', path: '/' },

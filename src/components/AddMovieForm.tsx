@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Button,
@@ -11,15 +12,19 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material';
-import { Movie } from '../types';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { searchMovies } from '../api';
+import { Movie } from '../types';
 
 type ErrorsTypes = {
   title?: string;
   description?: string;
   poster?: string;
+  search?: string;
 };
 
 const AddMovieForm: React.FC = () => {
@@ -31,8 +36,22 @@ const AddMovieForm: React.FC = () => {
   });
   const [errors, setErrors] = useState<ErrorsTypes>({});
   const [inputMethod, setInputMethod] = useState<'upload' | 'url'>('upload');
+  const [seachResult, setSeachResult] = useState<Movie[]>([]);
   const { userId } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const handleSearchMovies = async (searchQuery: string) => {
+    try {
+      const movies = await searchMovies(searchQuery);
+
+      setSeachResult(movies);
+    } catch (error) {
+      setErrors({
+        ...errors,
+        search: 'Movie not found continue filling out the form',
+      });
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,6 +62,20 @@ const AddMovieForm: React.FC = () => {
     });
 
     setErrors({ ...errors, [name]: '' });
+
+    if (name === 'title') {
+      handleSearchMovies(value);
+    }
+  };
+
+  const handleMovieSelect = (movie: Movie) => {
+    setFormData({
+      ...formData,
+      title: movie.title,
+      description: movie.description,
+      poster: movie.poster,
+    });
+    setSeachResult([]);
   };
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,12 +158,14 @@ const AddMovieForm: React.FC = () => {
     localStorage.setItem('db_app', JSON.stringify(db));
 
     setFormData({ title: '', description: '', poster: '', createdBy: '' });
+    setSeachResult([]);
 
     navigate('/');
   };
 
   const handleCancel = () => {
     setFormData({ title: '', description: '', poster: '', createdBy: '' });
+    setSeachResult([]);
 
     navigate('/');
   };
@@ -176,11 +211,10 @@ const AddMovieForm: React.FC = () => {
               >
                 Add Movie Form
               </Typography>
-
               <FormControl
                 fullWidth
-                sx={{ mb: 3 }}
-                error={!!errors.title}
+                sx={{ mb: 3, position: 'relative' }}
+                error={!!errors.title || !!errors.search}
               >
                 <InputLabel htmlFor="title">Title</InputLabel>
                 <OutlinedInput
@@ -193,8 +227,54 @@ const AddMovieForm: React.FC = () => {
                 {!!errors.title && (
                   <FormHelperText>{errors.title}</FormHelperText>
                 )}
-              </FormControl>
+                {!!errors.search && (
+                  <FormHelperText>{errors.search}</FormHelperText>
+                )}
 
+                {seachResult.length > 0 && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      width: '100%',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      border: '1px solid #ccc',
+                      borderRadius: 1,
+                      backgroundColor: '#fff',
+                      zIndex: 10,
+                    }}
+                  >
+                    <List>
+                      {seachResult.map((movie) => (
+                        <ListItem
+                          key={movie.id}
+                          onClick={() => handleMovieSelect(movie)}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src={movie.poster}
+                            alt={movie.title}
+                            sx={{
+                              width: '50px',
+                              height: '75px',
+                              marginRight: 2,
+                            }}
+                          />
+
+                          <ListItemText primary={movie.title} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                )}
+              </FormControl>
               <FormControl
                 fullWidth
                 sx={{ mb: 3 }}
